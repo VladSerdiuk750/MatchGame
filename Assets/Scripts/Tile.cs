@@ -94,15 +94,16 @@ public class Tile : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(transform.position, castDir);
         if (hit.collider != null) 
         {
-            Debug.Log(hit.collider.gameObject.transform.position);
             return hit.collider.gameObject;
         }
         return null;
     }
 
-    private List<GameObject> GetAllAdjacentTiles() {
+    private List<GameObject> GetAllAdjacentTiles() 
+    {
         List<GameObject> adjacentTiles = new List<GameObject>();
-        for (int i = 0; i < adjacentDirections.Length; i++) {
+        for (int i = 0; i < adjacentDirections.Length; i++) 
+        {
             adjacentTiles.Add(GetAdjacent(adjacentDirections[i]));
         }
         return adjacentTiles;
@@ -152,6 +153,8 @@ public class Tile : MonoBehaviour
         {
             _spriteRenderer.sprite = null;
             matchFound = false;
+            StopCoroutine(BoardManager.Instance.FindNullTiles());
+            StartCoroutine(BoardManager.Instance.FindNullTiles());
         }
     }
 }
