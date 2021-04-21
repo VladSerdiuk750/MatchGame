@@ -3,13 +3,13 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
-    private static Color _selectedColor = Color.grey;
-    private static Tile _previousSelected = null;
+    private static Color _selectedTileColor = Color.grey;
+    private static Tile _previousSelectedTile;
 
     private SpriteRenderer _spriteRenderer;
     private bool _isSelected;
 
-    private Vector2[] adjacentDirections = new Vector2[] { Vector2.down, Vector2.up, Vector2.left, Vector2.right };
+    private Vector2[] _neighborDirections = new Vector2[] { Vector2.down, Vector2.up, Vector2.left, Vector2.right };
 
     public SpriteRenderer TileRenderer
     {
@@ -21,56 +21,58 @@ public class Tile : MonoBehaviour
         }
     }
 
-    private bool matchFound = false;
+    private bool _matchFound;
 
     private void Awake()
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
+        _previousSelectedTile = null;
+        _matchFound = false;
     }
 
     public void Select()
     {
         _isSelected = true;
-        _spriteRenderer.color = _selectedColor;
-        _previousSelected = gameObject.GetComponent<Tile>();
+        _spriteRenderer.color = _selectedTileColor;
+        _previousSelectedTile = gameObject.GetComponent<Tile>();
     }
 
     public void Deselect()
     {
         _isSelected = false;
         _spriteRenderer.color = Color.white;
-        _previousSelected = null;
+        _previousSelectedTile = null;
     }
 
-    private void OnMouseDown() {
-        // Not Selectable conditions
+    private void OnMouseDown() 
+    {
         if (_spriteRenderer.sprite == null || BoardManager.Instance.IsShifting) 
         {
             return;
         }
 
         if (_isSelected) 
-        { // Is it already selected?
+        {
             Deselect();
         } 
         else 
         {
-            if (_previousSelected == null) 
-            { // Is it the first tile selected?
+            if (_previousSelectedTile == null) 
+            {
                 Select();
             } 
             else 
             {
-                if (GetAllAdjacentTiles().Contains(_previousSelected.gameObject)) 
+                if (GetAllNeighborTiles().Contains(_previousSelectedTile.gameObject)) 
                 { 
-                    SwapSprite(_previousSelected.TileRenderer);
-                    _previousSelected.ClearAllMatches();
-                    _previousSelected.Deselect();
+                    SwapSprite(_previousSelectedTile.TileRenderer);
+                    _previousSelectedTile.ClearAllMatches();
+                    _previousSelectedTile.Deselect();
                     ClearAllMatches();
                 } 
                 else 
                 {
-                    _previousSelected.GetComponent<Tile>().Deselect();
+                    _previousSelectedTile.GetComponent<Tile>().Deselect();
                     Select();
                 }
             }
@@ -89,7 +91,7 @@ public class Tile : MonoBehaviour
         _spriteRenderer.sprite = tempSprite;
     }
 
-    private GameObject GetAdjacent(Vector2 castDir) 
+    private GameObject GetNeighbor(Vector2 castDir) 
     {
         RaycastHit2D hit = Physics2D.Raycast(transform.position, castDir);
         if (hit.collider != null) 
@@ -99,12 +101,12 @@ public class Tile : MonoBehaviour
         return null;
     }
 
-    private List<GameObject> GetAllAdjacentTiles() 
+    private List<GameObject> GetAllNeighborTiles() 
     {
         List<GameObject> adjacentTiles = new List<GameObject>();
-        for (int i = 0; i < adjacentDirections.Length; i++) 
+        for (int i = 0; i < _neighborDirections.Length; i++) 
         {
-            adjacentTiles.Add(GetAdjacent(adjacentDirections[i]));
+            adjacentTiles.Add(GetNeighbor(_neighborDirections[i]));
         }
         return adjacentTiles;
     }
@@ -137,22 +139,22 @@ public class Tile : MonoBehaviour
             {
                 matchingTiles[i].GetComponent<SpriteRenderer>().sprite = null;
             }
-
-            matchFound = true;
+            
+            _matchFound = true;
         }
     }
 
     public void ClearAllMatches()
     {
-        if (_spriteRenderer.sprite == null) return;
+        if (_spriteRenderer.sprite is null) return;
 
-        ClearMatch(new Vector2[2] {Vector2.left, Vector2.right});
-        ClearMatch(new Vector2[2] {Vector2.up, Vector2.down});
+        ClearMatch(new[] {Vector2.left, Vector2.right});
+        ClearMatch(new[] {Vector2.up, Vector2.down});
 
-        if (matchFound)
+        if (_matchFound)
         {
             _spriteRenderer.sprite = null;
-            matchFound = false;
+            _matchFound = false;
             StopCoroutine(BoardManager.Instance.FindNullTiles());
             StartCoroutine(BoardManager.Instance.FindNullTiles());
         }

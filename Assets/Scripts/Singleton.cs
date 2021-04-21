@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class Singleton<T> : MonoBehaviour where T : Singleton<T>// Класс для подгрузки данных
+public class Singleton<T> : MonoBehaviour where T : Singleton<T>
 {
     private static T _instance;
     public static T Instance
@@ -11,12 +11,12 @@ public class Singleton<T> : MonoBehaviour where T : Singleton<T>// Класс д
             {
                 _instance = FindObjectOfType<T>();
             }
-            else if (_instance != FindObjectOfType<T>()) // если ситуация что Manager не должен создаваться
+            else if (_instance != FindObjectOfType<T>())
             {
-                Destroy(FindObjectOfType<T>()); // то его нужно удалить
+                Destroy(FindObjectOfType<T>());
             }
 
-            DontDestroyOnLoad(FindObjectOfType<T>()); // при загрузке Manager всегда должен оставатся на сцене
+            DontDestroyOnLoad(FindObjectOfType<T>());
 
             return _instance;
         }

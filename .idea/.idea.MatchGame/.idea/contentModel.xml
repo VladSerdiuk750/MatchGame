@@ -9,6 +9,7 @@
         <e p="Scripts" t="Include">
           <e p="BoardManager.cs" t="Include" />
           <e p="GameManager.cs" t="Include" />
+          <e p="GUIManager.cs" t="Include" />
           <e p="Singleton.cs" t="Include" />
           <e p="Tile.cs" t="Include" />
         </e>
